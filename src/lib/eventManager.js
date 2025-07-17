@@ -1,16 +1,16 @@
+import { EVENT_TYPES } from '../constants.js';
+
 const eventRegistry = new WeakMap();
 const rootListeners = new WeakMap();
 
 export function setupEventListeners(root) {
-  // 위임할 이벤트 리스트
-  const eventTypes = ['click', 'focus', 'blur', 'mouseover', 'keydown', 'keyup', 'change'];
   if (!rootListeners.has(root)) {
     rootListeners.set(root, new Set());
   }
   const registeredTypes = rootListeners.get(root);
 
-  // 상위에 정의한 이벤트 리스트 기반으로 리스너를 한번만 등록하기
-  for (const eventType of eventTypes) {
+  //  constants.js에 정의한 이벤트 리스트 기반으로 리스너를 한번만 등록하기
+  for (const eventType of EVENT_TYPES) {
     if (registeredTypes.has(eventType)) continue;
 
     root.addEventListener(eventType, (event) => {
