@@ -34,31 +34,46 @@ export function createElement(vNode) {
 
 function updateAttributes($el, props) {
   Object.entries(props).forEach(([key, value]) => {
-    // boolean 속성 처리
-    if (typeof value === 'boolean') {
-      if (key === 'checked' || key === 'selected' || key === 'readOnly' || key === 'disabled') {
-        $el[key] = true;
-      } else {
-        if (key in $el) {
-          $el[key] = true;
-        }
-        $el.setAttribute(key, '');
-      }
-    } else if (key === 'className') {
+    // 이벤트 핸들러 처리 우선순위 조정: onClick, onFocus 등 -> 이벤트 처리에 제일 많이 쓰일 것으로 보여 위로 올림
+    if (key.startsWith('on') && typeof value === 'function') {
+      const eventType = key.slice(2).toLowerCase();
+      addEvent($el, eventType, value);
+      return;
+    }
+
+    // className => class 속성으로 변환
+    if (key === 'className') {
       $el.setAttribute('class', value);
-    } else if (key === 'style' && typeof value === 'object') {
+      return;
+    }
+
+    // style 객체 처리
+    if (key === 'style' && typeof value === 'object') {
       Object.entries(value).forEach(([styleKey, styleValue]) => {
         $el.style[styleKey] = styleValue;
       });
-    } else if (key.startsWith('data-')) {
-      // 데이터 속성 처리
-      $el.setAttribute(key, value);
-    } else if (key.startsWith('on') && typeof value === 'function') {
-      const eventType = key.slice(2).toLowerCase();
-      addEvent($el, eventType, value);
-    } else {
-      // data-와 동일한 setAttribute 를 실행하지만,, 우선 분리
-      $el.setAttribute(key, value);
+      return;
     }
+
+    // boolean 속성 처리
+    const booleanAttrs = ['checked', 'selected', 'readOnly', 'disabled'];
+    if (typeof value === 'boolean') {
+      if (booleanAttrs.includes(key)) {
+        $el[key] = value;
+      } else {
+        $el.setAttribute(key, '');
+        if (key in $el) $el[key] = value;
+      }
+      return;
+    }
+
+    if (key.startsWith('data-')) {
+      // data-로 시작하는 속성에 대한 처리
+      $el.setAttribute(key, value);
+      return;
+    }
+
+    // 일반 속성 처리 - data-와 동일한 setAttribute 를 실행하지만,, 우선 분리
+    $el.setAttribute(key, value);
   });
 }

@@ -3,7 +3,7 @@ const rootListeners = new WeakMap();
 
 export function setupEventListeners(root) {
   // 위임할 이벤트 리스트
-  const eventTypes = ['click', 'focus', 'blur', 'mouseover', 'keydown', 'keyup'];
+  const eventTypes = ['click', 'focus', 'blur', 'mouseover', 'keydown', 'keyup', 'change'];
   if (!rootListeners.has(root)) {
     rootListeners.set(root, new Set());
   }
