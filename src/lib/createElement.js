@@ -1,3 +1,5 @@
+import { addEvent } from './eventManager.js';
+
 export function createElement(vNode) {
   // 함수형 컴포넌트 오류 발생 에러 추가
   if (typeof vNode === 'function') {
@@ -51,6 +53,9 @@ function updateAttributes($el, props) {
     } else if (key.startsWith('data-')) {
       // 데이터 속성 처리
       $el.setAttribute(key, value);
+    } else if (key.startsWith('on') && typeof value === 'function') {
+      const eventType = key.slice(2).toLowerCase();
+      addEvent($el, eventType, value);
     } else {
       // data-와 동일한 setAttribute 를 실행하지만,, 우선 분리
       $el.setAttribute(key, value);
